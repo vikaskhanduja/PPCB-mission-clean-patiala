@@ -103,6 +103,12 @@ textarea {
   object-fit: contain;
 }
 
+.login-panel > .brand {
+  width: 100%;
+  max-width: 420px;
+  margin-inline: auto;
+}
+
 .login-card {
   width: 100%;
   max-width: 420px;
@@ -945,8 +951,12 @@ textarea.form-control {
     padding: 26px clamp(22px, 7vw, 56px);
   }
 
+  .login-panel > .brand,
   .login-card {
     max-width: 460px;
+  }
+
+  .login-card {
     padding: 54px 0;
   }
 
