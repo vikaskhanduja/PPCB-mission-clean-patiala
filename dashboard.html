@@ -1,0 +1,399 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+    
+  </head>
+  <body class="app">
+    <aside>
+      <div class="brand light">
+        <img
+          class="logo-image"
+          src="images/punjab-logo.png"
+          alt="Punjab government emblem"
+        /><b>Mission Clean<br />Patiala</b>
+      </div>
+      <nav>
+        <a class="active" href="#dashboardTab" data-tab="dashboardTab" aria-current="page">Dashboard</a>
+        <a href="#detailsTab" data-tab="detailsTab" data-institution-tab>My Details</a>
+        <a href="#assessmentsTab" data-tab="assessmentsTab">My Assessments</a>
+        <a class="d-none" href="#officerView" data-tab="officerView" data-officer-tab>Issues &amp; Interventions</a>
+        <a class="d-none" href="#institutionsTab" data-tab="institutionsTab" data-officer-tab>Manage Institutions</a>
+      </nav>
+      <button id="logout" class="btn btn-outline-light btn-sm">Log out</button>
+    </aside>
+    <main class="content">
+      <header>
+        <div>
+          <p class="eyebrow">MISSION CONTROL</p>
+          <h1 id="pageTitle">Dashboard</h1>
+        </div>
+        <span id="roleBadge" class="badge text-bg-success"></span>
+      </header>
+      <section id="dashboardTab" class="dashboard-tab">
+        <section id="kpis" class="row g-3 mb-4"></section>
+        <section class="analytics-grid mt-4">
+          <article class="card-pad chart-card">
+            <div>
+              <p class="eyebrow">ASSESSMENT OVERVIEW</p>
+              <h3>Assessment Status</h3>
+              <p class="text-secondary small">Draft and submitted assessments</p>
+            </div>
+            <div class="chart-container">
+              <canvas id="assessmentStatusChart" aria-label="Donut chart showing assessment status"></canvas>
+            </div>
+          </article>
+          <article class="card-pad chart-card">
+            <div>
+              <p class="eyebrow">INTERVENTION BREAKDOWN</p>
+              <h3>Interventions by Status</h3>
+              <p class="text-secondary small">Progress of reported interventions</p>
+            </div>
+            <div class="chart-container chart-container--bar">
+              <canvas id="interventionChart" aria-label="Bar chart showing interventions by status"></canvas>
+            </div>
+          </article>
+          <article class="card-pad chart-card">
+            <div>
+              <p class="eyebrow">CATEGORY BREAKDOWN</p>
+              <h3>Interventions by Category</h3>
+              <p class="text-secondary small">Share of each category</p>
+            </div>
+            <div class="chart-container">
+              <canvas id="categoryChart" aria-label="Donut chart showing interventions by category"></canvas>
+            </div>
+          </article>
+          <article class="card-pad chart-card">
+            <div>
+              <p class="eyebrow">SUB-CATEGORY BREAKDOWN</p>
+              <h3>Interventions by Sub-category</h3>
+              <p class="text-secondary small">Most frequently reported sub-categories</p>
+            </div>
+            <div class="chart-container chart-container--bar">
+              <canvas id="subcategoryChart" aria-label="Bar chart showing interventions by sub-category"></canvas>
+            </div>
+          </article>
+        </section>
+      </section>
+      <section id="detailsTab" class="dashboard-tab d-none">
+        <div class="card-pad mb-4">
+          <div class="details-header">
+            <div>
+              <p class="eyebrow">INSTITUTION PROFILE</p>
+              <h3>My Details</h3>
+            </div>
+            <button id="startBtn" class="btn btn-success btn-lg">
+              + Start Road Assessment
+            </button>
+          </div>
+          <dl class="details-grid mb-0">
+            <div><dt>Institution Name</dt><dd id="institutionName">Loading…</dd></div>
+            <div><dt>Assigned Road</dt><dd id="assignedRoad">Loading…</dd></div>
+            <div><dt>Road Stretch</dt><dd id="roadStretch">Loading…</dd></div>
+          </dl>
+        </div>
+        <div id="assessment" class="card-pad d-none">
+          <h3>Road Assessment Form</h3>
+          <form id="assessmentForm" class="row g-3">
+            <div class="col-md-4">
+              <label>Assessor name</label
+              ><input name="assessorName" class="form-control" required />
+            </div>
+            <div class="col-md-4">
+              <label>Designation</label
+              ><input name="designation" class="form-control" />
+            </div>
+            <div class="col-md-4">
+              <label>Contact</label
+              ><input name="contact" class="form-control" />
+            </div>
+            <div class="col-12">
+              <button type="submit" class="btn btn-success">
+                Save Draft & Continue
+              </button>
+            </div>
+          </form>
+          <div id="issueEditor" class="d-none mt-4">
+            <hr />
+            <h4>Add Issue / Intervention</h4>
+            <p id="issueDraftHint" class="text-secondary small">
+              Save the assessment draft above to enable adding issues.
+            </p>
+            <form id="issueForm" class="row g-3">
+              <div class="col-12">
+                <label>Category</label
+                ><select id="category" class="form-select" required>
+                  <option value="">Select category</option>
+                  <option value="Plantation">Plantation</option>
+                  <option value="Tree guard requirement">Tree guard requirement</option>
+                  <option value="Opportunity for beautification">Opportunity for beautification</option>
+                  <option value="Pruning">Pruning</option>
+                  <option value="Horticulture waste">Horticulture waste</option>
+                  <option value="Waste accumulation">Waste accumulation</option>
+                  <option value="Construction & demolition waste">Construction & demolition waste</option>
+                  <option value="Open burning">Open burning</option>
+                  <option value="Garbage Vulnerable Points on Road">Garbage Vulnerable Points on Road</option>
+                  <option value="Garbage Vulnerable Points at Vacant Plot">Garbage Vulnerable Points at Vacant Plot</option>
+                  <option value="Sale/purchase of single-use plastic">Sale/purchase of single-use plastic</option>
+                  <option value="Patchwork">Patchwork</option>
+                  <option value="Pavement on road sides">Pavement on road sides</option>
+                  <option value="Green landscaping on road sides">Green landscaping on road sides</option>
+                  <option value="Pavement at divider">Pavement at divider</option>
+                  <option value="Green landscaping at divider">Green landscaping at divider</option>
+                  <option value="Traffic congestion">Traffic congestion</option>
+                  <option value="Idling hotspot">Idling hotspot</option>
+                  <option value="Parking-related congestion">Parking-related congestion</option>
+                  <option value="Encroachment affecting traffic flow">Encroachment affecting traffic flow</option>
+                  <option value="Awareness required for residents">Awareness required for residents</option>
+                  <option value="Awareness required for RWA">Awareness required for RWA</option>
+                  <option value="Awareness required for shopkeepers/vendors">Awareness required for shopkeepers/vendors</option>
+                  <option value="Awareness required for market associations">Awareness required for market associations</option>
+                  <option value="Awareness required for other commercial establishments">Awareness required for other commercial establishments</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div id="subcategoryDetailsWrap" class="col-12 d-none">
+                <label>Specify other intervention *</label
+                ><input id="subcategoryDetails" class="form-control" maxlength="300" placeholder="Specify other intervention" />
+              </div>
+              <div class="col-md-6">
+                <label>Latitude</label
+                ><input id="lat" class="form-control" required />
+              </div>
+              <div class="col-md-6">
+                <label>Longitude</label
+                ><input id="lng" class="form-control" required />
+              </div>
+              <div class="col-12">
+                <button
+                  type="button"
+                  id="gps"
+                  class="btn btn-outline-success btn-sm"
+                >
+                  Capture my location
+                </button>
+              </div>
+              <div class="col-md-6">
+                <label>Issue description</label
+                ><textarea
+                  id="description"
+                  class="form-control"
+                  maxlength="1000"
+                ></textarea>
+              </div>
+              <div class="col-md-6">
+                <label>Recommendation *</label
+                ><textarea
+                  id="recommendation"
+                  class="form-control"
+                  required
+                ></textarea>
+              </div>
+              <div class="col-md-6">
+                <label>Evidence photograph</label
+                ><input
+                  id="photo"
+                  type="file"
+                  accept="image/*"
+                  class="form-control"
+                />
+              </div>
+              <div class="col-md-6">
+                <label>Recommendation attachment <span class="text-secondary">(optional)</span></label
+                ><input
+                  id="recommendationAttachment"
+                  type="file"
+                  accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
+                  class="form-control"
+                />
+                <small class="text-secondary">Image, PDF, Word or Excel · max 10 MB</small>
+              </div>
+              <div class="col-12">
+                <button
+                  id="addIssueBtn"
+                  type="submit"
+                  class="btn btn-dark"
+                  disabled
+                >
+                  + Add Issue
+                </button>
+                <button
+                  type="button"
+                  id="submitAssessment"
+                  class="btn btn-success"
+                >
+                  Submit Final Assessment
+                </button>
+              </div>
+            </form>
+            <div id="issueList" class="mt-4"></div>
+          </div>
+        </div>
+      </section>
+      <section id="assessmentsTab" class="dashboard-tab d-none">
+        <div class="card-pad">
+          <div class="details-header">
+            <div>
+              <p class="eyebrow">ASSESSMENT HISTORY</p>
+              <h3>My Assessments</h3>
+            </div>
+          </div>
+          <div class="table-responsive mt-3">
+            <table class="table align-middle">
+              <thead>
+                <tr>
+                  <th>Assessment</th>
+                  <th>Assessor</th>
+                  <th>Assigned Road</th>
+                  <th>Road Stretch</th>
+                  <th>Status</th>
+                  <th>Issues / Interventions</th>
+                  <th>Created</th>
+                  <th>Submitted</th>
+                </tr>
+              </thead>
+              <tbody id="assessmentRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+      <section id="officerView" class="dashboard-tab d-none">
+        <div class="card-pad">
+          <div class="d-flex justify-content-between">
+            <h3>Assessment Review & Plan of Action</h3>
+            <button id="exportBtn" class="btn btn-outline-success">
+              Export CSV
+            </button>
+          </div>
+          <div class="table-responsive mt-3">
+            <table class="table align-middle">
+              <thead>
+                <tr>
+                  <th>Issue</th>
+                  <th>Category</th>
+                  <th>Road</th>
+                  <th>Agency</th>
+                  <th>Status</th>
+                  <th>Update</th>
+                </tr>
+              </thead>
+              <tbody id="adminRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+      <section id="institutionsTab" class="dashboard-tab d-none">
+        <div class="card-pad mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <p class="eyebrow">ADMINISTRATION</p>
+              <h3>Institution Accounts &amp; Credentials</h3>
+              <p class="text-secondary small mb-0">Manage institution accounts, assigned stretches, and reset login credentials</p>
+            </div>
+            <button id="toggleAddInstBtn" class="btn btn-success">
+              + Add New Institution
+            </button>
+          </div>
+          <div id="addInstitutionCard" class="card-pad border mt-3 d-none">
+            <h4 class="mb-3">Register New Institution</h4>
+            <form id="addInstitutionForm" class="row g-3">
+              <div class="col-md-6">
+                <label>Institution Name *</label>
+                <input id="newInstName" class="form-control" required placeholder="e.g. Model Senior Secondary School" />
+              </div>
+              <div class="col-md-3">
+                <label>Code *</label>
+                <input id="newInstCode" class="form-control" required placeholder="e.g. MSSS" maxlength="15" />
+              </div>
+              <div class="col-md-3">
+                <label>Login Username / Email *</label>
+                <input id="newInstUser" class="form-control" type="email" required placeholder="e.g. msss@mcpatiala.in" />
+              </div>
+              <div class="col-md-4">
+                <label>Assigned Road Name *</label>
+                <input id="newInstRoad" class="form-control" required placeholder="e.g. Mall Road" />
+              </div>
+              <div class="col-md-4">
+                <label>Road Stretch *</label>
+                <input id="newInstStretch" class="form-control" required placeholder="e.g. Fountain Chowk to Railway Station" />
+              </div>
+              <div class="col-md-4">
+                <label>Password *</label>
+                <input id="newInstPass" class="form-control" type="password" required minlength="6" placeholder="Min. 6 characters" />
+              </div>
+              <div class="col-12">
+                <button type="submit" class="btn btn-success">Save Institution</button>
+                <button type="button" id="cancelAddInstBtn" class="btn btn-outline-secondary ms-2">Cancel</button>
+              </div>
+            </form>
+          </div>
+          <div class="table-responsive mt-3">
+            <table class="table align-middle">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Institution</th>
+                  <th>Code</th>
+                  <th>Login Username</th>
+                  <th>Assigned Road &amp; Stretch</th>
+                  <th>Manage</th>
+                </tr>
+              </thead>
+              <tbody id="institutionRows">
+                <tr><td colspan="6" class="text-center text-secondary py-4">Loading institutions...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+    <dialog id="resetPasswordModal" class="success-modal" style="text-align: left; max-width: 440px;">
+      <div class="success-modal__content" style="text-align: left;">
+        <h4>Reset Password</h4>
+        <p id="resetInstName" class="text-secondary small mb-3"></p>
+        <form id="resetPasswordForm">
+          <label>New Password (min 6 characters)</label>
+          <input id="newPasswordInput" class="form-control mb-3" type="password" required minlength="6" />
+          <div class="d-flex justify-content-end gap-2">
+            <button type="button" id="cancelResetPassBtn" class="btn btn-outline-secondary btn-sm">Cancel</button>
+            <button type="submit" class="btn btn-success btn-sm">Update Password</button>
+          </div>
+        </form>
+      </div>
+    </dialog>
+    <dialog
+      id="assessmentSuccessModal"
+      class="success-modal"
+      aria-labelledby="assessmentSuccessTitle"
+      aria-describedby="assessmentSuccessMessage"
+    >
+      <div class="success-modal__content">
+        <div class="success-modal__icon" aria-hidden="true">✓</div>
+        <p class="eyebrow">ASSESSMENT RECEIVED</p>
+        <h2 id="assessmentSuccessTitle">Submission successful</h2>
+        <p id="assessmentSuccessMessage">
+          Your final road assessment has been submitted. Thank you for helping
+          make Patiala cleaner.
+        </p>
+        <form method="dialog">
+          <button class="btn btn-success w-100">View my assessments</button>
+        </form>
+      </div>
+    </dialog>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script type="module" src="js/dashboard.js"></script>
+  </body>
+</html>

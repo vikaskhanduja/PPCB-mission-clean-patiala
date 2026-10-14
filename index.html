@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Mission Clean Patiala</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <main class="split">
+      <section class="login-panel">
+        <div class="brand">
+          <img
+            class="logo-image"
+            src="images/punjab-logo.png"
+            alt="Punjab government emblem"
+          />
+          <div>
+            <b>Mission Clean Patiala</b
+            ><small>Institutional Road Assessment Portal</small>
+          </div>
+        </div>
+        <div class="login-card">
+          <p class="eyebrow">WELCOME BACK</p>
+          <h1>Sign in to access the portal</h1>
+          <div class="role-toggle">
+            <button class="active" data-role="institution">Institution</button
+            ><button data-role="officer">PPCB Officer</button>
+          </div>
+          <form id="loginForm">
+            <label>Username / Email</label
+            ><input
+              id="email"
+              class="form-control"
+              type="text"
+              placeholder="e.g. tiet@mcpatiala.in"
+              required
+            /><label>Password</label
+            ><input
+              id="password"
+              class="form-control"
+              type="password"
+              required
+            /><button class="btn btn-success w-100 mt-3">Secure Login</button>
+            <div id="error" class="text-danger small mt-2"></div>
+          </form>
+        </div>
+      </section>
+      <section class="hero-panel">
+        <div class="orb one"></div>
+        <div class="orb two"></div>
+        <div class="hero-content">
+          <span class="badge rounded-pill text-bg-light"
+            >Phase 3 • Patiala</span
+          >
+          <h2>Cleaner roads.<br />Visible action.<br />Measurable impact.</h2>
+          <p>
+            Map road issues, capture evidence and turn every validated
+            observation into an accountable plan of action.
+          </p>
+          <div class="impact">
+            <div><b>GIS</b><span>Issue mapping</span></div>
+            <div><b>PoA</b><span>Action planning</span></div>
+            <div><b>360°</b><span>Progress tracking</span></div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="js/index.js"></script>
+  </body>
+</html>

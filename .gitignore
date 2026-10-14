@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Environment variables (never commit secrets)
+.env
+
+# LowDB database file (server manages this; not for git)
+data/
+
+# Uploaded photos (server manages this; not for git)
+uploads/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+
+/.env

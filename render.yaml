@@ -1,0 +1,22 @@
+# Render deployment configuration
+# https://render.com/docs/yaml-spec
+services:
+  - type: web
+    name: mission-clean-patiala-api
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: MONGODB_URI
+        sync: false   # You must set this manually in Render dashboard after creating Atlas cluster
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
