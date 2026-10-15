@@ -221,7 +221,7 @@
                 />
                 <small class="text-secondary">Image, PDF, Word or Excel · max 10 MB</small>
               </div>
-              <div class="col-12">
+              <div class="col-12 form-actions">
                 <button
                   id="addIssueBtn"
                   type="submit"
@@ -251,8 +251,8 @@
               <h3>My Assessments</h3>
             </div>
           </div>
-          <div class="table-responsive mt-3">
-            <table class="table align-middle">
+          <div class="table-responsive list-wrap mt-3">
+            <table class="table align-middle list-table">
               <thead>
                 <tr>
                   <th>Assessment</th>
@@ -272,14 +272,14 @@
       </section>
       <section id="officerView" class="dashboard-tab d-none">
         <div class="card-pad">
-          <div class="d-flex justify-content-between">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <h3>Assessment Review & Plan of Action</h3>
             <button id="exportBtn" class="btn btn-outline-success">
               Export CSV
             </button>
           </div>
-          <div class="table-responsive mt-3">
-            <table class="table align-middle">
+          <div class="table-responsive list-wrap mt-3">
+            <table class="table align-middle list-table officer-list-table">
               <thead>
                 <tr>
                   <th>Issue</th>
@@ -297,7 +297,7 @@
       </section>
       <section id="institutionsTab" class="dashboard-tab d-none">
         <div class="card-pad mb-4">
-          <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
             <div>
               <p class="eyebrow">ADMINISTRATION</p>
               <h3>Institution Accounts &amp; Credentials</h3>
@@ -334,14 +334,14 @@
                 <label>Password *</label>
                 <input id="newInstPass" class="form-control" type="password" required minlength="6" placeholder="Min. 6 characters" />
               </div>
-              <div class="col-12">
+              <div class="col-12 form-actions">
                 <button type="submit" class="btn btn-success">Save Institution</button>
-                <button type="button" id="cancelAddInstBtn" class="btn btn-outline-secondary ms-2">Cancel</button>
+                <button type="button" id="cancelAddInstBtn" class="btn btn-outline-secondary">Cancel</button>
               </div>
             </form>
           </div>
-          <div class="table-responsive mt-3">
-            <table class="table align-middle">
+          <div class="table-responsive list-wrap mt-3">
+            <table class="table align-middle list-table inst-list-table">
               <thead>
                 <tr>
                   <th>#</th>

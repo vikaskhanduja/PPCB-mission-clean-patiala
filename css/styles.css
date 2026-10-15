@@ -831,6 +831,56 @@ textarea.form-control {
   color: #53675d;
 }
 
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.list-wrap {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: 0 2px 8px rgb(23 57 43 / 3%);
+}
+
+.list-table {
+  width: 100%;
+  margin-bottom: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.list-table thead th {
+  background: #f7faf8;
+  color: #4a5c54;
+  font-size: 0.73rem;
+  font-weight: 750;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.list-table tbody tr {
+  transition: background-color 140ms ease;
+}
+
+.list-table tbody tr:hover {
+  background-color: #f8fbf9;
+}
+
+.list-table tbody td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+}
+
+.list-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
 .success-modal {
   width: min(440px, calc(100% - 32px));
   max-width: none;
@@ -941,6 +991,123 @@ textarea.form-control {
   }
 }
 
+/* Tablet & Mobile: Clean, Organized List Card View */
+@media (max-width: 991.98px) {
+  .analytics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .list-wrap {
+    border: none;
+    background: transparent;
+    box-shadow: none;
+    overflow: visible;
+  }
+
+  .list-table,
+  .list-table tbody,
+  .list-table tr,
+  .list-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .list-table thead {
+    display: none;
+  }
+
+  .list-table tbody tr {
+    position: relative;
+    padding: 18px 20px;
+    margin-bottom: 16px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--surface);
+    box-shadow: 0 4px 16px rgb(23 57 43 / 5%);
+    transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+  }
+
+  .list-table tbody tr:hover {
+    border-color: #bde0cd;
+    box-shadow: 0 8px 24px rgb(23 57 43 / 9%);
+    transform: translateY(-1px);
+    background: #fff;
+  }
+
+  .list-table tbody td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0 !important;
+    border-bottom: 1px solid #edf3f0 !important;
+    font-size: 0.88rem;
+    text-align: right;
+  }
+
+  .list-table tbody td:last-child {
+    border-bottom: none !important;
+    padding-bottom: 0 !important;
+    margin-top: 8px;
+  }
+
+  .list-table tbody td::before {
+    content: attr(data-label);
+    font-weight: 750;
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+    flex: 0 0 auto;
+    text-align: left;
+  }
+
+  /* Vertical stacking for multi-line and interactive fields */
+  .list-table tbody td[data-label="Issues / Interventions"],
+  .list-table tbody td[data-label="Issue"],
+  .list-table tbody td[data-label="Category"],
+  .list-table tbody td[data-label="Assigned Road & Stretch"],
+  .list-table tbody td[data-label="Road Stretch"],
+  .list-table tbody td[data-label="Agency"],
+  .list-table tbody td[data-label="Status"],
+  .list-table tbody td[data-label="Update"],
+  .list-table tbody td[data-label="Manage"] {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: left;
+    gap: 6px;
+  }
+
+  .list-table tbody td[data-label="Issues / Interventions"]::before,
+  .list-table tbody td[data-label="Issue"]::before,
+  .list-table tbody td[data-label="Category"]::before,
+  .list-table tbody td[data-label="Assigned Road & Stretch"]::before,
+  .list-table tbody td[data-label="Road Stretch"]::before,
+  .list-table tbody td[data-label="Agency"]::before,
+  .list-table tbody td[data-label="Status"]::before,
+  .list-table tbody td[data-label="Update"]::before,
+  .list-table tbody td[data-label="Manage"]::before {
+    margin-bottom: 2px;
+  }
+
+  .list-table .form-control,
+  .list-table .form-select {
+    width: 100%;
+    min-width: 0;
+    min-height: 42px;
+  }
+
+  .list-table .btn {
+    min-height: 42px;
+    font-weight: 700;
+  }
+
+  .assessment-issue {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
 @media (max-width: 780px) {
   .split {
     grid-template-columns: 1fr;
@@ -948,7 +1115,7 @@ textarea.form-control {
 
   .login-panel {
     min-height: 100vh;
-    padding: 26px clamp(22px, 7vw, 56px);
+    padding: 26px clamp(20px, 6vw, 48px);
   }
 
   .login-panel > .brand,
@@ -957,27 +1124,30 @@ textarea.form-control {
   }
 
   .login-card {
-    padding: 54px 0;
+    padding: 40px 0;
   }
 
   .hero-panel {
     min-height: auto;
-    padding: 58px clamp(24px, 7vw, 56px);
+    padding: 48px clamp(20px, 6vw, 48px);
   }
 
   .hero-content h2 {
-    font-size: clamp(2.35rem, 8vw, 3.5rem);
+    font-size: clamp(2rem, 7vw, 3.2rem);
   }
 
   .app aside {
     position: sticky;
-    inset: 0 0 auto;
+    top: 0;
+    z-index: 100;
     width: 100%;
     padding: 14px 18px 10px;
+    box-shadow: 0 4px 14px rgb(0 0 0 / 15%);
   }
 
   .app aside .brand {
     padding: 0 2px;
+    padding-right: 90px;
   }
 
   .app aside .brand .logo-image {
@@ -992,16 +1162,18 @@ textarea.form-control {
     gap: 6px;
     overflow-x: auto;
     margin: 12px -4px 2px;
-    padding: 0 4px 4px;
+    padding: 0 4px 6px;
     scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
   }
 
   .app aside nav a {
     min-height: 38px;
     flex: 0 0 auto;
-    padding: 8px 11px;
-    font-size: 0.78rem;
+    padding: 8px 14px;
+    font-size: 0.8rem;
     white-space: nowrap;
+    border-radius: 999px;
   }
 
   .app aside > button {
@@ -1010,29 +1182,26 @@ textarea.form-control {
     right: 18px;
     min-height: 36px;
     margin: 0;
-    padding: 5px 10px;
+    padding: 5px 12px;
+    font-size: 0.82rem;
   }
 
   .content {
     width: 100%;
     margin: 0;
-    padding: 24px clamp(16px, 4vw, 30px) 36px;
+    padding: 20px clamp(14px, 3.5vw, 24px) 36px;
   }
 
   .details-grid {
     grid-template-columns: 1fr;
-    gap: 10px;
-    margin-top: 20px;
-  }
-
-  .analytics-grid {
-    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-top: 18px;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 576px) {
   .login-panel {
-    padding-inline: 22px;
+    padding-inline: 18px;
   }
 
   .brand small {
@@ -1041,34 +1210,72 @@ textarea.form-control {
   }
 
   .content > header {
+    flex-direction: column;
     align-items: flex-start;
+    gap: 10px;
     margin-bottom: 20px;
   }
 
   .content > header h1 {
-    font-size: 1.65rem;
+    font-size: 1.6rem;
   }
 
   .content > header .eyebrow {
-    font-size: 0.63rem;
+    font-size: 0.65rem;
   }
 
   #roleBadge {
-    padding: 7px 9px;
-    font-size: 0.63rem;
+    padding: 6px 10px;
+    font-size: 0.65rem;
   }
 
-  #institutionView > .card-pad:first-child .btn {
-    width: 100%;
+  .card-pad {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .kpi {
+    min-height: auto;
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .kpi-value {
+    font-size: 1.85rem;
+    margin-top: 8px;
+  }
+
+  .chart-container {
+    height: 250px;
+  }
+
+  .chart-container--bar {
+    height: 290px;
   }
 
   .details-header {
-    align-items: stretch;
     flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
   }
 
   .details-header .btn {
     width: 100%;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .form-actions .btn {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  #gps {
+    width: 100%;
+    min-height: 42px;
   }
 
   .impact {
@@ -1078,7 +1285,16 @@ textarea.form-control {
   .impact div {
     min-width: 0;
     flex: 1 1 28%;
-    padding: 13px;
+    padding: 12px;
+  }
+
+  .success-modal {
+    width: calc(100% - 24px);
+    margin: auto;
+  }
+
+  .success-modal__content {
+    padding: 24px 18px;
   }
 }
 

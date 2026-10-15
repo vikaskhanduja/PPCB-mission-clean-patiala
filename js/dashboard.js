@@ -234,14 +234,14 @@ async function loadAssessments() {
                   .join("")
               : "No issues added";
             return `<tr>
-            <td>#${escapeHtml(item.id)}</td>
-            <td>${escapeHtml(item.assessorName || "—")}</td>
-            <td>${escapeHtml(item.road?.name || "—")}</td>
-            <td>${escapeHtml(item.road?.stretch || "—")}</td>
-            <td>${escapeHtml(item.status || "—")}</td>
-            <td>${issueDetails}</td>
-            <td>${escapeHtml(formatDate(item.createdAt))}</td>
-            <td>${escapeHtml(formatDate(item.submittedAt))}</td>
+            <td data-label="Assessment"><span class="fw-bold text-success">#${escapeHtml(item.id)}</span></td>
+            <td data-label="Assessor">${escapeHtml(item.assessorName || "—")}</td>
+            <td data-label="Assigned Road"><strong>${escapeHtml(item.road?.name || "—")}</strong></td>
+            <td data-label="Road Stretch">${escapeHtml(item.road?.stretch || "—")}</td>
+            <td data-label="Status"><span class="badge ${item.status === "Submitted" ? "text-bg-success" : "text-bg-warning"}">${escapeHtml(item.status || "—")}</span></td>
+            <td data-label="Issues / Interventions">${issueDetails}</td>
+            <td data-label="Created">${escapeHtml(formatDate(item.createdAt))}</td>
+            <td data-label="Submitted">${escapeHtml(formatDate(item.submittedAt))}</td>
           </tr>`;
           },
         )
@@ -553,22 +553,22 @@ async function officer() {
           .map((st) => `<option${st === currentStatus ? " selected" : ""}>${escapeHtml(st)}</option>`)
           .join("");
         return `<tr>
-          <td>
-            <b>${escapeHtml(i.issueCode)}</b>
-            <div class="small fw-semibold text-dark mt-1">${escapeHtml(i.subcategory || i.category || "")}${i.subcategoryDetails ? ` — ${escapeHtml(i.subcategoryDetails)}` : ""}</div>
+          <td data-label="Issue">
+            <span class="badge text-bg-light border mb-1">${escapeHtml(i.issueCode)}</span>
+            <div class="small fw-semibold text-dark">${escapeHtml(i.subcategory || i.category || "")}${i.subcategoryDetails ? ` — ${escapeHtml(i.subcategoryDetails)}` : ""}</div>
             ${i.description ? `<small class="text-secondary d-block mt-1">${escapeHtml(i.description)}</small>` : ""}
             ${attachmentLink(i) ? `<div class="mt-1">${attachmentLink(i)}</div>` : ""}
           </td>
-          <td>
+          <td data-label="Category">
             <select class="form-select form-select-sm" data-key="category" required>
               ${categoryOptions}
             </select>
             ${i.legacyCategory ? `<small class="d-block text-secondary mt-1">Previously: ${escapeHtml(i.legacyCategory)}</small>` : ""}
           </td>
-          <td>${escapeHtml(i.road?.name || "")}</td>
-          <td><input class="form-control form-control-sm" data-key="responsibleAgency" value="${escapeHtml(i.responsibleAgency || "")}"></td>
-          <td><select class="form-select form-select-sm" data-key="status">${statusOptions}</select></td>
-          <td><button class="btn btn-success btn-sm save" data-id="${i.id}">Save</button></td>
+          <td data-label="Road"><strong>${escapeHtml(i.road?.name || "")}</strong></td>
+          <td data-label="Agency"><input class="form-control form-control-sm" data-key="responsibleAgency" placeholder="Assign agency" value="${escapeHtml(i.responsibleAgency || "")}"></td>
+          <td data-label="Status"><select class="form-select form-select-sm" data-key="status">${statusOptions}</select></td>
+          <td data-label="Update"><button class="btn btn-success btn-sm save w-100" data-id="${i.id}">Save</button></td>
         </tr>`;
       },
     )
@@ -620,16 +620,16 @@ async function loadInstitutions() {
     ? rows
         .map(
           (inst, index) => `<tr>
-            <td>${index + 1}</td>
-            <td><b>${escapeHtml(inst.name)}</b></td>
-            <td><span class="badge text-bg-light border">${escapeHtml(inst.code)}</span></td>
-            <td><code>${escapeHtml(inst.username || "—")}</code></td>
-            <td>
-              <div><b>${escapeHtml(inst.roadName || "—")}</b></div>
+            <td data-label="#">${index + 1}</td>
+            <td data-label="Institution"><b>${escapeHtml(inst.name)}</b></td>
+            <td data-label="Code"><span class="badge text-bg-light border">${escapeHtml(inst.code)}</span></td>
+            <td data-label="Login Username"><code>${escapeHtml(inst.username || "—")}</code></td>
+            <td data-label="Assigned Road & Stretch">
+              <div><strong>${escapeHtml(inst.roadName || "—")}</strong></div>
               <small class="text-secondary">${escapeHtml(inst.roadStretch || "—")}</small>
             </td>
-            <td>
-              <button class="btn btn-outline-warning btn-sm reset-pass-btn" data-id="${inst.id}" data-name="${escapeHtml(inst.name)}">
+            <td data-label="Manage">
+              <button class="btn btn-outline-warning btn-sm reset-pass-btn w-100" data-id="${inst.id}" data-name="${escapeHtml(inst.name)}">
                 Reset Password
               </button>
             </td>
