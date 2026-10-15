@@ -8,8 +8,11 @@ import { router } from "./src/routes.js";
 const app = express();
 
 // Allow GitHub Pages frontend + local dev
+
 const allowedOrigins = [
-  /^https:\/\/[\w-]+\.github\.io$/, // any *.github.io subdomain
+  /^https:\/\/[\w-]+\.github\.io$/,
+  "https://ppcbmissioncleanpatiala.in",
+  "https://www.ppcbmissioncleanpatiala.in",
   "http://localhost:3000",
   "http://127.0.0.1:3000",
   "http://localhost:5500",
