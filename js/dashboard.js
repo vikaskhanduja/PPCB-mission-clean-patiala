@@ -214,6 +214,19 @@ function attachmentLink(issue) {
   return `<a class="d-inline-block small mt-1" href="${escapeHtml(url)}" target="_blank" rel="noopener">📎 ${escapeHtml(issue.attachmentName || "Recommendation attachment")}</a>`;
 }
 
+function photoLinks(issue) {
+  if (!issue.photos || !issue.photos.length) return "";
+  return `<div class="d-flex flex-wrap align-items-center gap-2 mt-2">` +
+    issue.photos.map((p, idx) => {
+      const src = /^https?:\/\//.test(p.path) ? p.path : API_BASE + p.path;
+      return `<a href="${escapeHtml(src)}" target="_blank" rel="noopener" class="d-inline-flex align-items-center gap-1 text-decoration-none badge text-bg-light border p-1" title="Click to view full photo">
+        <img src="${escapeHtml(src)}" alt="Evidence" style="width: 38px; height: 38px; object-fit: cover; border-radius: 6px;" />
+        <span class="small text-secondary px-1">📷 Photo ${idx + 1}</span>
+      </a>`;
+    }).join("") +
+  `</div>`;
+}
+
 async function loadAssessments() {
   const rows = await api("/api/assessments");
   assessmentRows.innerHTML = rows.length
@@ -229,6 +242,7 @@ async function loadAssessments() {
                       <span>${escapeHtml(issue.description || issue.recommendation || "No description provided")}</span>
                       <small>Recommendation: ${escapeHtml(issue.recommendation || "—")} · Location: ${escapeHtml(issue.latitude || "—")}, ${escapeHtml(issue.longitude || "—")}</small>
                       ${attachmentLink(issue)}
+                      ${photoLinks(issue)}
                     </div>`,
                   )
                   .join("")
@@ -613,6 +627,7 @@ async function officer() {
             <div class="small fw-semibold text-dark">${escapeHtml(i.subcategory || i.category || "")}${i.subcategoryDetails ? ` — ${escapeHtml(i.subcategoryDetails)}` : ""}</div>
             ${i.description ? `<small class="text-secondary d-block mt-1">${escapeHtml(i.description)}</small>` : ""}
             ${attachmentLink(i) ? `<div class="mt-1">${attachmentLink(i)}</div>` : ""}
+            ${photoLinks(i)}
           </td>
           <td data-label="Category">
             <select class="form-select form-select-sm" data-key="category" required>

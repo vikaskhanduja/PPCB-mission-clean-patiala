@@ -83,9 +83,19 @@ router.get('/assessments', async (req, res) => {
 
   const assessmentIds = assessments.map(a => a.id);
   const issues = await Issue.find({ assessmentId: { $in: assessmentIds } }).lean();
+  const issueIds = issues.map(i => i.id);
+  const photos = await Photo.find({ issueId: { $in: issueIds } }).lean();
+  const photosByIssue = {};
+  photos.forEach(p => {
+    (photosByIssue[p.issueId] = photosByIssue[p.issueId] || []).push(p);
+  });
+
   const issuesByAssessment = {};
   issues.forEach(i => {
-    (issuesByAssessment[i.assessmentId] = issuesByAssessment[i.assessmentId] || []).push(normalizeIssueCategory(i));
+    (issuesByAssessment[i.assessmentId] = issuesByAssessment[i.assessmentId] || []).push({
+      ...normalizeIssueCategory(i),
+      photos: photosByIssue[i.id] || [],
+    });
   });
 
   const rows = assessments.map(a => ({
