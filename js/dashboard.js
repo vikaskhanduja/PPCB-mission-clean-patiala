@@ -319,6 +319,8 @@ async function init() {
   }
 }
 async function institution() {
+  let savedIssuesCount = 0;
+
   startBtn.onclick = async () => {
     assessment.classList.remove("d-none");
     issueEditor.classList.add("d-none");
@@ -376,6 +378,7 @@ async function institution() {
         body: JSON.stringify(Object.fromEntries(new FormData(e.target))),
       });
       assessmentId = a.id;
+      savedIssuesCount = 0;
       saveDraftButton.textContent = "Draft Saved";
       saveDraftButton.disabled = true;
       issueEditor.classList.remove("d-none");
@@ -424,65 +427,116 @@ async function institution() {
     }
   };
 
-  issueForm.onsubmit = async (e) => {
-    e.preventDefault();
+  const saveCurrentIssue = async () => {
     if (!assessmentId) {
       alert("Save the assessment draft before adding an issue.");
-      return;
+      return false;
+    }
+    if (!category.value || !lat.value || !lng.value || !recommendation.value) {
+      issueForm.reportValidity();
+      return false;
     }
     const attachment = recommendationAttachment.files[0];
     if (attachment && attachment.size > 10 * 1024 * 1024) {
       alert("Recommendation attachment must be 10 MB or smaller.");
-      return;
+      return false;
     }
-    try {
-      const i = await api(`/api/assessments/${assessmentId}/issues`, {
-        method: "POST",
-        body: JSON.stringify({
-          category: category.value,
-          subcategoryDetails: subcategoryDetails.value,
-          description: description.value,
-          recommendation: recommendation.value,
-          latitude: lat.value,
-          longitude: lng.value,
-        }),
-      });
-      const uploadErrors = [];
-      if (photo.files[0]) {
-        await uploadFile(`/api/issues/${i.id}/photos`, "photo", photo.files[0]).catch((err) =>
-          uploadErrors.push(`Photo: ${err.message}`),
-        );
-      }
-      if (attachment) {
-        await uploadFile(`/api/issues/${i.id}/attachment`, "attachment", attachment).catch((err) =>
-          uploadErrors.push(`Attachment: ${err.message}`),
-        );
-      }
-      if (uploadErrors.length) alert(`Issue saved, but some files failed to upload:\n${uploadErrors.join("\n")}`);
-      issueList.insertAdjacentHTML(
-        "beforeend",
-        `<div class="issue-pill"><b>${escapeHtml(i.issueCode)}</b> • ${escapeHtml(i.subcategory || i.category)}<br><small>${escapeHtml(i.recommendation)}</small></div>`,
+
+    const i = await api(`/api/assessments/${assessmentId}/issues`, {
+      method: "POST",
+      body: JSON.stringify({
+        category: category.value,
+        subcategoryDetails: subcategoryDetails.value,
+        description: description.value,
+        recommendation: recommendation.value,
+        latitude: lat.value,
+        longitude: lng.value,
+      }),
+    });
+    const uploadErrors = [];
+    if (photo.files[0]) {
+      await uploadFile(`/api/issues/${i.id}/photos`, "photo", photo.files[0]).catch((err) =>
+        uploadErrors.push(`Photo: ${err.message}`),
       );
-      e.target.reset();
-      category.dispatchEvent(new Event("change"));
-      activateTab("assessmentsTab");
-      try {
-        await updateAnalyticsCharts();
-      } catch (error) {
-        alert(`Issue was added, but charts could not be refreshed: ${error.message}`);
+    }
+    if (attachment) {
+      await uploadFile(`/api/issues/${i.id}/attachment`, "attachment", attachment).catch((err) =>
+        uploadErrors.push(`Attachment: ${err.message}`),
+      );
+    }
+    if (uploadErrors.length) alert(`Issue saved, but some files failed to upload:\n${uploadErrors.join("\n")}`);
+    issueList.insertAdjacentHTML(
+      "beforeend",
+      `<div class="issue-pill"><b>${escapeHtml(i.issueCode)}</b> • ${escapeHtml(i.subcategory || i.category)}<br><small>${escapeHtml(i.recommendation)}</small></div>`,
+    );
+    issueForm.reset();
+    category.dispatchEvent(new Event("change"));
+    savedIssuesCount++;
+    try {
+      await updateAnalyticsCharts();
+    } catch (error) {
+      console.error(error);
+    }
+    return true;
+  };
+
+  issueForm.onsubmit = async (e) => {
+    e.preventDefault();
+    addIssueBtn.disabled = true;
+    try {
+      const saved = await saveCurrentIssue();
+      if (saved) {
+        alert("Issue added successfully! You can add another issue, or click 'Submit Final Assessment' to complete.");
       }
     } catch (error) {
       alert(error.message);
+    } finally {
+      addIssueBtn.disabled = false;
     }
   };
+
   submitAssessment.onclick = async () => {
+    if (!assessmentId) {
+      alert("Save the assessment draft before submitting.");
+      return;
+    }
+
+    // If user filled in the issue fields but clicked "Submit Final Assessment" directly, auto-save the issue first!
+    const hasFormInput = Boolean(category.value || recommendation.value || description.value || photo.files[0]);
+    if (hasFormInput) {
+      submitAssessment.disabled = true;
+      submitAssessment.textContent = "Saving issue & submitting...";
+      try {
+        const saved = await saveCurrentIssue();
+        if (!saved) {
+          submitAssessment.disabled = false;
+          submitAssessment.textContent = "Submit Final Assessment";
+          return;
+        }
+      } catch (err) {
+        submitAssessment.disabled = false;
+        submitAssessment.textContent = "Submit Final Assessment";
+        alert("Failed to save issue: " + err.message);
+        return;
+      }
+    }
+
+    // Verify at least one issue is saved before final submission
+    if (savedIssuesCount === 0 && issueList.children.length === 0) {
+      alert("Please fill in and add at least one issue before submitting.");
+      issueForm.reportValidity();
+      return;
+    }
+
     submitAssessment.disabled = true;
+    submitAssessment.textContent = "Submitting Final Assessment...";
     try {
       await api(`/api/assessments/${assessmentId}/submit`, {
         method: "PATCH",
       });
     } catch (e) {
       submitAssessment.disabled = false;
+      submitAssessment.textContent = "Submit Final Assessment";
       alert(e.message);
       return;
     }
@@ -493,9 +547,10 @@ async function institution() {
       renderKpis(stats);
       await updateAnalyticsCharts();
     } catch (e) {
-      alert(`Assessment submitted, but the dashboard could not be refreshed: ${e.message}`);
+      console.error(e);
     }
   };
+
   try {
     const details = await api("/api/institution/details");
     institutionName.textContent = details.institutionName || "—";
