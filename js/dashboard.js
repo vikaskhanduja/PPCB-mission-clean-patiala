@@ -441,9 +441,15 @@ async function loadAssessments() {
             : "No issues added";
 
           return `<tr>
-          ${isOfficer ? `<td data-label="Reported By"><strong class="text-dark">${escapeHtml(instName)}</strong></td>` : ""}
           <td data-label="Assessment"><span class="fw-bold text-success">#${escapeHtml(item.id)}</span></td>
-          <td data-label="Assessor">${escapeHtml(item.assessorName || "—")}</td>
+          ${isOfficer ? `<td data-label="Reported By">
+            <strong class="text-dark d-block">${escapeHtml(instName)}</strong>
+            ${item.contact ? `<small class="text-muted d-block">📞 ${escapeHtml(item.contact)}</small>` : ""}
+          </td>` : ""}
+          <td data-label="Assessor">
+            <span class="text-dark fw-medium">${escapeHtml(item.assessorName || "—")}</span>
+            ${item.designation ? `<small class="text-muted d-block">${escapeHtml(item.designation)}</small>` : ""}
+          </td>
           <td data-label="Assigned Road"><strong>${escapeHtml(item.road?.name || "—")}</strong></td>
           <td data-label="Road Stretch">${escapeHtml(item.road?.stretch || "—")}</td>
           <td data-label="Status"><span class="badge ${item.status === "Submitted" ? "text-bg-success" : "text-bg-warning"}">${escapeHtml(item.status || "—")}</span></td>

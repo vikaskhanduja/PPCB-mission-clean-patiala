@@ -1484,3 +1484,46 @@ textarea.form-control {
   color: #047857;
   border: 1px solid #a7f3d0;
 }
+
+
+/* ─── 10-Row Scrollable Table with Fixed (Sticky) Header ─────────────────────── */
+.table-scroll-10 {
+  max-height: 640px;
+  overflow-y: auto;
+  overflow-x: auto;
+  position: relative;
+  border-radius: 14px;
+  scrollbar-width: thin;
+  scrollbar-color: #087653 #f1f5f3;
+}
+
+.table-scroll-10::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.table-scroll-10::-webkit-scrollbar-track {
+  background: #f1f5f3;
+  border-radius: 4px;
+}
+
+.table-scroll-10::-webkit-scrollbar-thumb {
+  background: #b7cbbf;
+  border-radius: 4px;
+}
+
+.table-scroll-10::-webkit-scrollbar-thumb:hover {
+  background: #087653;
+}
+
+.table-scroll-10 table {
+  margin-bottom: 0;
+}
+
+.table-scroll-10 thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: #f7faf8 !important;
+  box-shadow: inset 0 -1px 0 var(--line), 0 2px 4px rgb(23 57 43 / 6%);
+}
