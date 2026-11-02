@@ -77,10 +77,14 @@ router.get('/assessments', async (req, res) => {
   const query = req.user.role === 'institution' ? { institutionId: req.user.institutionId } : {};
   const assessments = await Assessment.find(query).lean();
 
-  // Batch-load roads and issues to avoid N+1 queries
+  // Batch-load roads, institutions and issues to avoid N+1 queries
   const roadIds = [...new Set(assessments.map(a => a.roadId))];
   const roads = await Road.find({ id: { $in: roadIds } }).lean();
   const roadMap = Object.fromEntries(roads.map(r => [r.id, r]));
+
+  const institutionIds = [...new Set(assessments.map(a => a.institutionId).filter(Boolean))];
+  const institutions = await Institution.find({ id: { $in: institutionIds } }).lean();
+  const institutionMap = Object.fromEntries(institutions.map(i => [i.id, i]));
 
   const assessmentIds = assessments.map(a => a.id);
   const issues = await Issue.find({ assessmentId: { $in: assessmentIds } }).lean();
@@ -101,6 +105,7 @@ router.get('/assessments', async (req, res) => {
 
   const rows = assessments.map(a => ({
     ...a,
+    institution: institutionMap[a.institutionId],
     road: roadMap[a.roadId],
     issues: issuesByAssessment[a.id] || [],
   }));

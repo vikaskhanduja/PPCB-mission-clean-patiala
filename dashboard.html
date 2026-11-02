@@ -66,14 +66,69 @@
               <canvas id="interventionChart" aria-label="Bar chart showing interventions by status"></canvas>
             </div>
           </article>
-          <article class="card-pad chart-card">
-            <div>
-              <p class="eyebrow">CATEGORY BREAKDOWN</p>
-              <h3>Interventions by Category</h3>
-              <p class="text-secondary small">Share of each category</p>
+          <article class="card-pad chart-card analytics-card--full">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+              <div>
+                <p class="eyebrow">CATEGORY BREAKDOWN &amp; KPI ANALYTICS</p>
+                <h3>Interventions by Category</h3>
+                <p class="text-secondary small">
+                  Category-wise breakdown showing Reported, Verified, Pending, and Completed cases
+                </p>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <span id="categoryTotalBadge" class="badge text-bg-success px-3 py-2 fw-semibold">0 Total Cases</span>
+              </div>
             </div>
-            <div class="chart-container">
-              <canvas id="categoryChart" aria-label="Donut chart showing interventions by category"></canvas>
+
+            <!-- Category Cards Grid -->
+            <div id="categoryCardsGrid" class="row g-3 mb-4">
+              <!-- Rendered dynamically -->
+            </div>
+
+            <!-- Visual Charts & Comparison -->
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-xl-8">
+                <div class="category-chart-wrapper p-3 border rounded-3 bg-light-subtle">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-semibold small text-dark">Category Status Comparison</span>
+                    <span class="small text-muted">Stacked breakdown</span>
+                  </div>
+                  <div class="chart-container chart-container--category-stacked">
+                    <canvas id="categoryChart" aria-label="Stacked bar chart showing category cases by status"></canvas>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-xl-4">
+                <div class="category-chart-wrapper p-3 border rounded-3 bg-light-subtle h-100">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-semibold small text-dark">Category Share</span>
+                    <span class="small text-muted">Total cases %</span>
+                  </div>
+                  <div class="chart-container chart-container--category-donut">
+                    <canvas id="categoryDonutChart" aria-label="Donut chart showing category share"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Category Summary Table -->
+            <div class="table-responsive list-wrap">
+              <table class="table align-middle list-table category-analytics-table mb-0">
+                <thead>
+                  <tr>
+                    <th>Intervention Category</th>
+                    <th class="text-center">Total Cases</th>
+                    <th class="text-center">Reported</th>
+                    <th class="text-center">Verified</th>
+                    <th class="text-center">Pending</th>
+                    <th class="text-center">Completed</th>
+                    <th>Resolution Rate</th>
+                  </tr>
+                </thead>
+                <tbody id="categoryTableRows">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
             </div>
           </article>
           <article class="card-pad chart-card">
@@ -248,13 +303,14 @@
           <div class="details-header">
             <div>
               <p class="eyebrow">ASSESSMENT HISTORY</p>
-              <h3>My Assessments</h3>
+              <h3 id="assessmentsTableTitle">My Assessments</h3>
             </div>
           </div>
           <div class="table-responsive list-wrap mt-3">
             <table class="table align-middle list-table">
               <thead>
-                <tr>
+                <tr id="assessmentTableHead">
+                  <th id="thReportedBy" class="d-none">Reported By</th>
                   <th>Assessment</th>
                   <th>Assessor</th>
                   <th>Assigned Road</th>
@@ -399,6 +455,6 @@
       </div>
     </dialog>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-    <script type="module" src="js/dashboard.js?v=20261102"></script>
+    <script type="module" src="js/dashboard.js?v=20261102c"></script>
   </body>
 </html>
