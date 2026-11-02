@@ -594,6 +594,96 @@ assessmentSuccessModal.addEventListener("close", async () => {
   activateTab("assessmentsTab");
 });
 
+const EXCELJS_CDN = "https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js";
+let excelJsLoading;
+
+function loadExcelJs() {
+  if (window.ExcelJS) return Promise.resolve(window.ExcelJS);
+  excelJsLoading ??= new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = EXCELJS_CDN;
+    script.onload = () => resolve(window.ExcelJS);
+    script.onerror = () => {
+      excelJsLoading = undefined;
+      reject(new Error("Excel library could not be loaded. Check your internet connection and try again."));
+    };
+    document.head.appendChild(script);
+  });
+  return excelJsLoading;
+}
+
+async function buildIssuesWorkbook(issues) {
+  const ExcelJS = await loadExcelJs();
+  const workbook = new ExcelJS.Workbook();
+  workbook.creator = "Mission Clean Patiala";
+  workbook.created = new Date();
+  const sheet = workbook.addWorksheet("Issues", { views: [{ state: "frozen", ySplit: 1 }] });
+
+  sheet.columns = [
+    { header: "Issue ID",                   key: "issueCode",          width: 30 },
+    { header: "Institution",                key: "institution",        width: 36 },
+    { header: "Road",                       key: "road",               width: 24 },
+    { header: "Stretch",                    key: "stretch",            width: 32 },
+    { header: "Category",                   key: "category",           width: 26 },
+    { header: "Subcategory",                key: "subcategory",        width: 34 },
+    { header: "Other Intervention Details", key: "subcategoryDetails", width: 30 },
+    { header: "Description",                key: "description",        width: 45 },
+    { header: "Recommendation",             key: "recommendation",     width: 45 },
+    { header: "Recommendation Attachment",  key: "attachmentUrl",      width: 40 },
+    { header: "Latitude",                   key: "latitude",           width: 12 },
+    { header: "Longitude",                  key: "longitude",          width: 12 },
+    { header: "Priority",                   key: "priority",           width: 11 },
+    { header: "Agency",                     key: "responsibleAgency",  width: 22 },
+    { header: "Status",                     key: "status",             width: 20 },
+    { header: "Target Date",                key: "targetDate",         width: 14 },
+    { header: "Admin Remarks",              key: "adminRemarks",       width: 36 },
+    { header: "Reported On",                key: "createdAt",          width: 20 },
+  ];
+
+  [...issues]
+    .sort((a, b) => (a.issueCode || "").localeCompare(b.issueCode || ""))
+    .forEach((x) => {
+      const row = sheet.addRow({
+        issueCode:          x.issueCode || "",
+        institution:        x.institution?.name || "",
+        road:               x.road?.name || "",
+        stretch:            x.road?.stretch || "",
+        category:           parentCategory(x.category) || "",
+        subcategory:        x.subcategory || "",
+        subcategoryDetails: x.subcategoryDetails || "",
+        description:        x.description || "",
+        recommendation:     x.recommendation || "",
+        attachmentUrl:      x.attachmentUrl || "",
+        latitude:           x.latitude || "",
+        longitude:          x.longitude || "",
+        priority:           x.priority || "",
+        responsibleAgency:  x.responsibleAgency || "",
+        status:             x.status || "",
+        targetDate:         x.targetDate || "",
+        adminRemarks:       x.adminRemarks || "",
+        createdAt:          x.createdAt ? new Date(x.createdAt).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }) : "",
+      });
+      if (x.attachmentUrl) {
+        const cell = row.getCell("attachmentUrl");
+        cell.value = { text: x.attachmentName || x.attachmentUrl, hyperlink: x.attachmentUrl };
+        cell.font = { color: { argb: "FF0B6E4F" }, underline: true };
+      }
+    });
+
+  const header = sheet.getRow(1);
+  header.font = { bold: true, color: { argb: "FFFFFFFF" } };
+  header.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF0B5D3F" } };
+  header.alignment = { vertical: "middle" };
+  header.height = 22;
+  sheet.eachRow((row, n) => { if (n > 1) row.alignment = { vertical: "top", wrapText: true }; });
+  sheet.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: sheet.columns.length } };
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  return new Blob([buffer], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+}
+
 async function officer() {
   issueCategories = issueCategories || (await api("/api/master/categories"));
   const officerCats = issueCategories?.officerCategories || [
@@ -686,12 +776,19 @@ async function officer() {
     exportXlsxBtn.disabled = true;
     exportXlsxBtn.textContent = "Preparing…";
     try {
+      let blob;
       const r = await fetch(`${API_BASE}/api/admin/export.xlsx`, {
         headers: { Authorization: "Bearer " + s.token },
-      });
-      if (!r.ok) throw new Error("Excel export failed (" + r.status + ")");
-      const blob = await r.blob(),
-        a = document.createElement("a");
+      }).catch(() => null);
+      if (r?.ok) {
+        blob = await r.blob();
+      } else if (r && (r.status === 401 || r.status === 403)) {
+        throw new Error("You are not authorised to export. Please log in again.");
+      } else {
+        // Backend without the Excel endpoint (e.g. not yet redeployed): build in the browser.
+        blob = await buildIssuesWorkbook(await api("/api/admin/issues"));
+      }
+      const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
       a.download = "mission-clean-patiala-issues.xlsx";
       a.click();
