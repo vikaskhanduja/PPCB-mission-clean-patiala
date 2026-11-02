@@ -680,6 +680,29 @@ async function officer() {
     a.download = "mission-clean-patiala-issues.csv";
     a.click();
   };
+  const exportXlsxBtn = document.getElementById("exportXlsxBtn");
+  exportXlsxBtn.onclick = async () => {
+    const label = exportXlsxBtn.textContent;
+    exportXlsxBtn.disabled = true;
+    exportXlsxBtn.textContent = "Preparing…";
+    try {
+      const r = await fetch(`${API_BASE}/api/admin/export.xlsx`, {
+        headers: { Authorization: "Bearer " + s.token },
+      });
+      if (!r.ok) throw new Error("Excel export failed (" + r.status + ")");
+      const blob = await r.blob(),
+        a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "mission-clean-patiala-issues.xlsx";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      exportXlsxBtn.disabled = false;
+      exportXlsxBtn.textContent = label;
+    }
+  };
 }
 
 let activeResetInstId = null;

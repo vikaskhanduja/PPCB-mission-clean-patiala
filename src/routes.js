@@ -2,6 +2,7 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import multer from 'multer';
+import ExcelJS from 'exceljs';
 import { User, Institution, Road, Assessment, Issue, Photo, nextId } from './db.js';
 import { auth, allow } from './auth.js';
 import { issueCategories, officerCategories, institutionIssues, categoryForIssue, isValidIssue, normalizeIssueCategory } from './issue-categories.js';
@@ -388,4 +389,77 @@ router.get('/admin/export.csv', allow('officer', 'superadmin'), async (req, res)
     ...issues.map(x => [x.issueCode, normalizeIssueCategory(x).category, x.subcategory, x.subcategoryDetails, x.description, x.recommendation, x.attachmentUrl, x.responsibleAgency, x.status, x.targetDate]),
   ];
   res.type('text/csv').attachment('mission-clean-patiala-issues.csv').send(rows.map(r => r.map(esc).join(',')).join('\n'));
+});
+
+// ─── Excel export ─────────────────────────────────────────────────────────────
+router.get('/admin/export.xlsx', allow('officer', 'superadmin'), async (req, res) => {
+  const [issues, assessments, roads, institutions] = await Promise.all([
+    Issue.find({}).lean(),
+    Assessment.find({}).lean(),
+    Road.find({}).lean(),
+    Institution.find({}).lean(),
+  ]);
+  const assessmentMap  = Object.fromEntries(assessments.map(a => [a.id, a]));
+  const roadMap        = Object.fromEntries(roads.map(r => [r.id, r]));
+  const institutionMap = Object.fromEntries(institutions.map(i => [i.id, i]));
+
+  const workbook = new ExcelJS.Workbook();
+  workbook.creator = 'Mission Clean Patiala';
+  workbook.created = new Date();
+  const sheet = workbook.addWorksheet('Issues', { views: [{ state: 'frozen', ySplit: 1 }] });
+
+  sheet.columns = [
+    { header: 'Issue ID',                   key: 'issueCode',          width: 30 },
+    { header: 'Institution',                key: 'institution',        width: 36 },
+    { header: 'Road',                       key: 'road',               width: 24 },
+    { header: 'Stretch',                    key: 'stretch',            width: 32 },
+    { header: 'Category',                   key: 'category',           width: 26 },
+    { header: 'Subcategory',                key: 'subcategory',        width: 34 },
+    { header: 'Other Intervention Details', key: 'subcategoryDetails', width: 30 },
+    { header: 'Description',                key: 'description',        width: 45 },
+    { header: 'Recommendation',             key: 'recommendation',     width: 45 },
+    { header: 'Recommendation Attachment',  key: 'attachmentUrl',      width: 40 },
+    { header: 'Latitude',                   key: 'latitude',           width: 12 },
+    { header: 'Longitude',                  key: 'longitude',          width: 12 },
+    { header: 'Priority',                   key: 'priority',           width: 11 },
+    { header: 'Agency',                     key: 'responsibleAgency',  width: 22 },
+    { header: 'Status',                     key: 'status',             width: 20 },
+    { header: 'Target Date',                key: 'targetDate',         width: 14 },
+    { header: 'Admin Remarks',              key: 'adminRemarks',       width: 36 },
+    { header: 'Reported On',                key: 'createdAt',          width: 20 },
+  ];
+
+  issues
+    .sort((a, b) => (a.issueCode || '').localeCompare(b.issueCode || ''))
+    .forEach(x => {
+      const a = assessmentMap[x.assessmentId];
+      const road = roadMap[a?.roadId];
+      const row = sheet.addRow({
+        ...x,
+        category:    normalizeIssueCategory(x).category,
+        institution: institutionMap[a?.institutionId]?.name || '',
+        road:        road?.name || '',
+        stretch:     road?.stretch || '',
+        createdAt:   x.createdAt ? new Date(x.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) : '',
+      });
+      if (x.attachmentUrl) {
+        const cell = row.getCell('attachmentUrl');
+        cell.value = { text: x.attachmentName || x.attachmentUrl, hyperlink: x.attachmentUrl };
+        cell.font = { color: { argb: 'FF0B6E4F' }, underline: true };
+      }
+    });
+
+  const header = sheet.getRow(1);
+  header.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+  header.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0B5D3F' } };
+  header.alignment = { vertical: 'middle' };
+  header.height = 22;
+  sheet.eachRow((row, n) => { if (n > 1) row.alignment = { vertical: 'top', wrapText: true }; });
+  sheet.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: sheet.columns.length } };
+
+  res
+    .type('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    .attachment('mission-clean-patiala-issues.xlsx');
+  await workbook.xlsx.write(res);
+  res.end();
 });
