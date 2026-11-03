@@ -274,43 +274,43 @@ textarea.form-control {
 }
 
 .hero-title {
-  margin: 26px 0 10px;
-  font-size: clamp(2.4rem, 4.4vw, 4.1rem);
+  margin: 22px 0 12px;
+  font-size: clamp(2.6rem, 4.8vw, 4.3rem);
   font-weight: 800;
-  letter-spacing: -0.045em;
-  line-height: 1.08;
+  letter-spacing: -0.04em;
+  line-height: 1.06;
   color: #fff;
   animation: rise-in 650ms 180ms both;
 }
 
+.hero-subtitle,
+.hero-desc {
+  max-width: 540px;
+  font-size: clamp(0.95rem, 1.15vw, 1.02rem);
+  font-weight: 450;
+  line-height: 1.65;
+  color: rgb(255 255 255 / 85%);
+}
+
 .hero-subtitle {
   margin: 0 0 28px;
-  max-width: 530px;
-  font-size: 0.94rem;
-  color: rgb(255 255 255 / 88%);
-  line-height: 1.6;
-  font-weight: 450;
-  animation: rise-in 650ms 260ms both;
+  animation: rise-in 650ms 240ms both;
 }
 
 .hero-secondary-title {
   margin: 0 0 12px;
-  font-size: clamp(1.4rem, 2.3vw, 2.15rem);
-  font-weight: 400;
+  font-size: clamp(1.5rem, 2.5vw, 2.25rem);
+  font-weight: 600;
   letter-spacing: -0.035em;
-  line-height: 1.25;
+  line-height: 1.2;
   color: var(--lime);
-  animation: rise-in 650ms 340ms both;
+  animation: rise-in 650ms 320ms both;
 }
 
 .hero-desc {
-  max-width: 520px;
   margin: 0 0 10px;
-  font-size: 0.94rem;
-  color: rgb(255 255 255 / 76%);
-  line-height: 1.65;
-  font-weight: 450;
-  animation: rise-in 650ms 420ms both;
+  color: rgb(255 255 255 / 80%);
+  animation: rise-in 650ms 400ms both;
 }
 
 .impact {
@@ -1156,11 +1156,17 @@ textarea.form-control {
   }
 
   .hero-title {
-    font-size: clamp(2rem, 7vw, 3.2rem);
+    font-size: clamp(2.1rem, 7.5vw, 3.2rem);
   }
 
   .hero-secondary-title {
-    font-size: clamp(1.25rem, 4.5vw, 1.7rem);
+    font-size: clamp(1.35rem, 4.8vw, 1.85rem);
+  }
+
+  .hero-subtitle,
+  .hero-desc {
+    font-size: 0.95rem;
+    line-height: 1.6;
   }
 
   .app aside {
