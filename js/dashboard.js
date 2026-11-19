@@ -526,6 +526,15 @@ async function init() {
   const k = await api("/api/dashboard");
   renderKpis(k);
   if (s.user.role === "institution") {
+    document.body.classList.add("is-institution");
+    const instHeader = document.getElementById("instituteFixedHeader");
+    if (instHeader) {
+      instHeader.classList.remove("d-none");
+    }
+    const nameEl = document.getElementById("fixedHeaderInstituteName");
+    if (nameEl) {
+      nameEl.textContent = s.user.institution || "Institution Portal";
+    }
     await institution();
   } else {
     document.querySelectorAll("[data-institution-tab]").forEach((link) => {
@@ -772,6 +781,15 @@ async function institution() {
     institutionName.textContent = details.institutionName || "—";
     assignedRoad.textContent = details.assignedRoad || "No road assigned";
     roadStretch.textContent = details.roadStretch || "—";
+    const nameEl = document.getElementById("fixedHeaderInstituteName");
+    if (nameEl && details.institutionName) {
+      nameEl.textContent = details.institutionName;
+    }
+    const roadBadge = document.getElementById("fixedHeaderRoadBadge");
+    if (roadBadge && details.assignedRoad) {
+      roadBadge.textContent = details.assignedRoad;
+      roadBadge.classList.remove("d-none");
+    }
   } catch (error) {
     institutionName.textContent = s.user.institution || "—";
     assignedRoad.textContent = "Details unavailable";

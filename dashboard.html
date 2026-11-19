@@ -36,6 +36,32 @@
       <button id="logout" class="btn btn-outline-light btn-sm">Log out</button>
     </aside>
     <main class="content">
+      <!-- Fixed Header for Institute Login -->
+      <div id="instituteFixedHeader" class="institute-fixed-header d-none">
+        <div class="inst-header-left">
+          <img
+            class="mc-logo-image"
+            src="images/mc-patiala-logo.jpg"
+            alt="Municipal Corporation Patiala Emblem"
+          />
+          <div class="mc-header-text">
+            <span class="mc-title">Municipal Corporation, Patiala</span>
+            <span class="mc-subtitle">Mission Clean Patiala • Road Custodian Programme</span>
+          </div>
+        </div>
+
+        <div class="inst-header-right">
+          <div class="inst-identity-pill">
+            <div class="inst-identity-icon" aria-hidden="true">🏛️</div>
+            <div class="inst-identity-details">
+              <span class="inst-identity-role">Custodian Institution</span>
+              <strong id="fixedHeaderInstituteName" class="inst-identity-name">—</strong>
+            </div>
+          </div>
+          <span id="fixedHeaderRoadBadge" class="badge text-bg-light border inst-road-badge d-none"></span>
+        </div>
+      </div>
+
       <header>
         <div>
           <p class="eyebrow">MISSION CONTROL</p>
@@ -447,6 +473,6 @@
       </div>
     </dialog>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-    <script type="module" src="js/dashboard.js?v=20261119a"></script>
+    <script type="module" src="js/dashboard.js?v=20261119b"></script>
   </body>
 </html>
