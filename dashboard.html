@@ -14,7 +14,7 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/styles.css?v=20261119c" />
     
   </head>
   <body class="app">
@@ -37,28 +37,33 @@
     </aside>
     <main class="content">
       <!-- Fixed Header for Institute Login -->
-      <div id="instituteFixedHeader" class="institute-fixed-header d-none">
-        <div class="inst-header-left">
+      <div id="instituteFixedHeader" class="institute-header-bar d-none">
+        <div class="inst-brand-group">
           <img
-            class="mc-logo-image"
+            class="mc-emblem"
             src="images/mc-patiala-logo.jpg"
-            alt="Municipal Corporation Patiala Emblem"
+            alt="Municipal Corporation Patiala"
+            width="48"
+            height="48"
           />
-          <div class="mc-header-text">
-            <span class="mc-title">Municipal Corporation, Patiala</span>
-            <span class="mc-subtitle">Mission Clean Patiala • Road Custodian Programme</span>
+          <div class="mc-text-wrap">
+            <span class="mc-heading">Municipal Corporation, Patiala</span>
+            <span class="mc-subheading">Mission Clean Patiala • Road Custodian Programme</span>
           </div>
         </div>
 
-        <div class="inst-header-right">
-          <div class="inst-identity-pill">
-            <div class="inst-identity-icon" aria-hidden="true">🏛️</div>
-            <div class="inst-identity-details">
-              <span class="inst-identity-role">Custodian Institution</span>
-              <strong id="fixedHeaderInstituteName" class="inst-identity-name">—</strong>
+        <div class="inst-info-group">
+          <div class="inst-card">
+            <span class="inst-role-tag">Custodian Institution</span>
+            <div class="inst-name-row">
+              <span class="inst-icon">🏛️</span>
+              <strong id="fixedHeaderInstituteName" class="inst-title">—</strong>
             </div>
           </div>
-          <span id="fixedHeaderRoadBadge" class="badge text-bg-light border inst-road-badge d-none"></span>
+          <div id="fixedHeaderRoadWrap" class="inst-road-wrap d-none">
+            <span class="inst-road-tag">Assigned Road</span>
+            <strong id="fixedHeaderRoadBadge" class="inst-road-title">—</strong>
+          </div>
         </div>
       </div>
 
@@ -473,6 +478,6 @@
       </div>
     </dialog>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-    <script type="module" src="js/dashboard.js?v=20261119b"></script>
+    <script type="module" src="js/dashboard.js?v=20261119c"></script>
   </body>
 </html>

@@ -785,10 +785,11 @@ async function institution() {
     if (nameEl && details.institutionName) {
       nameEl.textContent = details.institutionName;
     }
+    const roadWrap = document.getElementById("fixedHeaderRoadWrap");
     const roadBadge = document.getElementById("fixedHeaderRoadBadge");
     if (roadBadge && details.assignedRoad) {
       roadBadge.textContent = details.assignedRoad;
-      roadBadge.classList.remove("d-none");
+      if (roadWrap) roadWrap.classList.remove("d-none");
     }
   } catch (error) {
     institutionName.textContent = s.user.institution || "—";
