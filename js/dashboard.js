@@ -63,6 +63,17 @@ const CATEGORY_META = {
   "Other Intervention": { icon: "⚙️", short: "Other" },
 };
 
+// Issues no longer offered in the Institution "Add Issue / Intervention" dropdown
+const RETIRED_ISSUES = new Set([
+  "Tree guard requirement",
+  "Waste accumulation",
+  "Green landscaping on road sides",
+  "Green landscaping at divider",
+  "Idling hotspot",
+  "Encroachment affecting traffic flow",
+  "Awareness required for market associations",
+  "Awareness required for other commercial establishments",
+]);
 const OFFICER_STATUSES = ["Reported", "Validated", "Returned", "Assigned for Action", "In Progress", "Completed", "Closed"];
 
 function parentCategory(category) {
@@ -542,13 +553,11 @@ async function institution() {
       if (!categoriesLoaded) {
         issueCategories =
           issueCategories || (await api("/api/master/categories"));
-        const issuesList = issueCategories?.institutionIssues || [
+        const issuesList = (issueCategories?.institutionIssues || [
           "Plantation",
-          "Tree guard requirement",
           "Opportunity for beautification",
           "Pruning",
           "Horticulture waste",
-          "Waste accumulation",
           "Construction & demolition waste",
           "Open burning",
           "Garbage Vulnerable Points on Road",
@@ -556,20 +565,14 @@ async function institution() {
           "Sale/purchase of single-use plastic",
           "Patchwork",
           "Pavement on road sides",
-          "Green landscaping on road sides",
           "Pavement at divider",
-          "Green landscaping at divider",
           "Traffic congestion",
-          "Idling hotspot",
           "Parking-related congestion",
-          "Encroachment affecting traffic flow",
           "Awareness required for residents",
           "Awareness required for RWA",
           "Awareness required for shopkeepers/vendors",
-          "Awareness required for market associations",
-          "Awareness required for other commercial establishments",
           "Other",
-        ];
+        ]).filter((item) => !RETIRED_ISSUES.has(item));
         category.innerHTML =
           '<option value="">Select category</option>' +
           issuesList

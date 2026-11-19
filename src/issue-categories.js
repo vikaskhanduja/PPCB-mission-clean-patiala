@@ -56,14 +56,12 @@ export const issueCategories = {
   ],
 };
 
-// 26 Specific Issues in exact required order for Institution dropdown
+// Specific Issues in exact required order for Institution dropdown (18 active)
 export const institutionIssues = [
   "Plantation",
-  "Tree guard requirement",
   "Opportunity for beautification",
   "Pruning",
   "Horticulture waste",
-  "Waste accumulation",
   "Construction & demolition waste",
   "Open burning",
   "Garbage Vulnerable Points on Road",
@@ -71,20 +69,28 @@ export const institutionIssues = [
   "Sale/purchase of single-use plastic",
   "Patchwork",
   "Pavement on road sides",
-  "Green landscaping on road sides",
   "Pavement at divider",
-  "Green landscaping at divider",
   "Traffic congestion",
-  "Idling hotspot",
   "Parking-related congestion",
-  "Encroachment affecting traffic flow",
   "Awareness required for residents",
   "Awareness required for RWA",
   "Awareness required for shopkeepers/vendors",
-  "Awareness required for market associations",
-  "Awareness required for other commercial establishments",
   "Other",
 ];
+
+// Issues removed from the Institution dropdown. They stay in issueCategories so
+// previously reported issues keep mapping to the correct officer category,
+// but new submissions with these values are rejected.
+export const retiredIssues = new Set([
+  "Tree guard requirement",
+  "Waste accumulation",
+  "Green landscaping on road sides",
+  "Green landscaping at divider",
+  "Idling hotspot",
+  "Encroachment affecting traffic flow",
+  "Awareness required for market associations",
+  "Awareness required for other commercial establishments",
+]);
 
 export const issueToCategory = new Map(
   Object.entries(issueCategories).flatMap(([category, issues]) =>

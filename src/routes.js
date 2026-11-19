@@ -5,7 +5,7 @@ import multer from 'multer';
 import ExcelJS from 'exceljs';
 import { User, Institution, Road, Assessment, Issue, Photo, nextId } from './db.js';
 import { auth, allow } from './auth.js';
-import { issueCategories, officerCategories, institutionIssues, categoryForIssue, isValidIssue, normalizeIssueCategory } from './issue-categories.js';
+import { issueCategories, officerCategories, institutionIssues, retiredIssues, categoryForIssue, isValidIssue, normalizeIssueCategory } from './issue-categories.js';
 import { storePhoto, storeFile } from './storage.js';
 
 const upload = multer({
@@ -138,7 +138,7 @@ router.post('/assessments/:id/issues', allow('institution'), async (req, res) =>
   if (!assessment) return res.sendStatus(404);
 
   const selectedIssue = String(req.body.category || req.body.subcategory || req.body.issue || '').trim();
-  if (!selectedIssue || !isValidIssue(selectedIssue))
+  if (!selectedIssue || !isValidIssue(selectedIssue) || retiredIssues.has(selectedIssue))
     return res.status(400).json({ message: 'Select a valid issue category' });
   if (!req.body.recommendation)
     return res.status(400).json({ message: 'Recommendation is required' });
