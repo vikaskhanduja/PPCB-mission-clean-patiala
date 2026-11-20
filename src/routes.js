@@ -124,6 +124,7 @@ router.post('/assessments', allow('institution'), async (req, res) => {
     designation: req.body.designation || '',
     contact: req.body.contact || '',
     remarks: req.body.remarks || '',
+    willingnessToSupport: req.body.willingnessToSupport || null,
     status: 'Draft',
     createdAt: now(),
     updatedAt: now(),
@@ -215,9 +216,15 @@ router.patch('/assessments/:id/submit', allow('institution'), async (req, res) =
   if (!a) return res.sendStatus(404);
   if (!await Issue.exists({ assessmentId: a.id }))
     return res.status(400).json({ message: 'Add at least one issue' });
+
+  const willingness = req.body?.willingnessToSupport || a.willingnessToSupport;
+  if (!willingness || !['Yes', 'No'].includes(willingness)) {
+    return res.status(400).json({ message: 'Please select whether you are willing to support the concerned department (Yes or No)' });
+  }
+
   const updated = await Assessment.findOneAndUpdate(
     { id: a.id },
-    { status: 'Submitted', submittedAt: now(), updatedAt: now() },
+    { status: 'Submitted', willingnessToSupport: willingness, submittedAt: now(), updatedAt: now() },
     { new: true, lean: true }
   );
   res.json(updated);
@@ -387,11 +394,18 @@ router.post('/admin/institutions/:id/reset-password', allow('officer', 'superadm
 
 // ─── CSV export ───────────────────────────────────────────────────────────────
 router.get('/admin/export.csv', allow('officer', 'superadmin'), async (req, res) => {
-  const issues = await Issue.find({}).lean();
+  const [issues, assessments] = await Promise.all([
+    Issue.find({}).lean(),
+    Assessment.find({}).lean(),
+  ]);
+  const assessmentMap = Object.fromEntries(assessments.map(a => [a.id, a]));
   const esc = v => '"' + String(v ?? '').replaceAll('"', '""') + '"';
   const rows = [
-    ['Issue ID', 'Category', 'Subcategory', 'Other Intervention Details', 'Description', 'Recommendation', 'Recommendation Attachment', 'Agency', 'Status', 'Target Date'],
-    ...issues.map(x => [x.issueCode, normalizeIssueCategory(x).category, x.subcategory, x.subcategoryDetails, x.description, x.recommendation, x.attachmentUrl, x.responsibleAgency, x.status, x.targetDate]),
+    ['Issue ID', 'Category', 'Subcategory', 'Other Intervention Details', 'Description', 'Recommendation', 'Recommendation Attachment', 'Agency', 'Status', 'Target Date', 'Willingness to Support'],
+    ...issues.map(x => {
+      const a = assessmentMap[x.assessmentId];
+      return [x.issueCode, normalizeIssueCategory(x).category, x.subcategory, x.subcategoryDetails, x.description, x.recommendation, x.attachmentUrl, x.responsibleAgency, x.status, x.targetDate, a?.willingnessToSupport || ''];
+    }),
   ];
   res.type('text/csv').attachment('mission-clean-patiala-issues.csv').send(rows.map(r => r.map(esc).join(',')).join('\n'));
 });
@@ -414,24 +428,25 @@ router.get('/admin/export.xlsx', allow('officer', 'superadmin'), async (req, res
   const sheet = workbook.addWorksheet('Issues', { views: [{ state: 'frozen', ySplit: 1 }] });
 
   sheet.columns = [
-    { header: 'Issue ID',                   key: 'issueCode',          width: 30 },
-    { header: 'Institution',                key: 'institution',        width: 36 },
-    { header: 'Road',                       key: 'road',               width: 24 },
-    { header: 'Stretch',                    key: 'stretch',            width: 32 },
-    { header: 'Category',                   key: 'category',           width: 26 },
-    { header: 'Subcategory',                key: 'subcategory',        width: 34 },
-    { header: 'Other Intervention Details', key: 'subcategoryDetails', width: 30 },
-    { header: 'Description',                key: 'description',        width: 45 },
-    { header: 'Recommendation',             key: 'recommendation',     width: 45 },
-    { header: 'Recommendation Attachment',  key: 'attachmentUrl',      width: 40 },
-    { header: 'Latitude',                   key: 'latitude',           width: 12 },
-    { header: 'Longitude',                  key: 'longitude',          width: 12 },
-    { header: 'Priority',                   key: 'priority',           width: 11 },
-    { header: 'Agency',                     key: 'responsibleAgency',  width: 22 },
-    { header: 'Status',                     key: 'status',             width: 20 },
-    { header: 'Target Date',                key: 'targetDate',         width: 14 },
-    { header: 'Admin Remarks',              key: 'adminRemarks',       width: 36 },
-    { header: 'Reported On',                key: 'createdAt',          width: 20 },
+    { header: 'Issue ID',                   key: 'issueCode',             width: 30 },
+    { header: 'Institution',                key: 'institution',           width: 36 },
+    { header: 'Road',                       key: 'road',                  width: 24 },
+    { header: 'Stretch',                    key: 'stretch',               width: 32 },
+    { header: 'Category',                   key: 'category',              width: 26 },
+    { header: 'Subcategory',                key: 'subcategory',           width: 34 },
+    { header: 'Other Intervention Details', key: 'subcategoryDetails',    width: 30 },
+    { header: 'Description',                key: 'description',           width: 45 },
+    { header: 'Recommendation',             key: 'recommendation',        width: 45 },
+    { header: 'Recommendation Attachment',  key: 'attachmentUrl',         width: 40 },
+    { header: 'Latitude',                   key: 'latitude',              width: 12 },
+    { header: 'Longitude',                  key: 'longitude',             width: 12 },
+    { header: 'Priority',                   key: 'priority',              width: 11 },
+    { header: 'Agency',                     key: 'responsibleAgency',     width: 22 },
+    { header: 'Status',                     key: 'status',                width: 20 },
+    { header: 'Target Date',                key: 'targetDate',            width: 14 },
+    { header: 'Admin Remarks',              key: 'adminRemarks',          width: 36 },
+    { header: 'Willingness to Support Dept',key: 'willingnessToSupport',  width: 26 },
+    { header: 'Reported On',                key: 'createdAt',             width: 20 },
   ];
 
   issues
@@ -441,11 +456,12 @@ router.get('/admin/export.xlsx', allow('officer', 'superadmin'), async (req, res
       const road = roadMap[a?.roadId];
       const row = sheet.addRow({
         ...x,
-        category:    normalizeIssueCategory(x).category,
-        institution: institutionMap[a?.institutionId]?.name || '',
-        road:        road?.name || '',
-        stretch:     road?.stretch || '',
-        createdAt:   x.createdAt ? new Date(x.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) : '',
+        category:             normalizeIssueCategory(x).category,
+        institution:          institutionMap[a?.institutionId]?.name || '',
+        road:                 road?.name || '',
+        stretch:              road?.stretch || '',
+        willingnessToSupport: a?.willingnessToSupport || '',
+        createdAt:            x.createdAt ? new Date(x.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) : '',
       });
       if (x.attachmentUrl) {
         const cell = row.getCell('attachmentUrl');

@@ -14,7 +14,7 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="css/styles.css?v=20261119c" />
+    <link rel="stylesheet" href="css/styles.css?v=20261120a" />
     
   </head>
   <body class="app">
@@ -308,16 +308,49 @@
                 >
                   + Add Issue
                 </button>
-                <button
-                  type="button"
-                  id="submitAssessment"
-                  class="btn btn-success"
-                >
-                  Submit Final Assessment
-                </button>
               </div>
             </form>
             <div id="issueList" class="mt-4"></div>
+
+            <!-- Mandatory Willingness to Support Section -->
+            <div id="willingnessSection" class="willingness-card mt-4 p-4 border rounded-3 bg-white">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="willingness-icon">🤝</span>
+                <h5 class="fw-bold text-dark mb-0">Willingness to Support the Concerned Department <span class="text-danger">*</span></h5>
+              </div>
+              <p class="text-secondary small mb-3">
+                Please indicate whether your institution is willing to voluntarily support the concerned civic department in remediating the identified road issues and ground action.
+              </p>
+              <div class="willingness-options d-flex flex-column flex-sm-row gap-3">
+                <label class="willingness-option flex-grow-1 p-3 border rounded-3 d-flex align-items-center gap-3 cursor-pointer">
+                  <input type="radio" name="willingnessToSupport" value="Yes" class="form-check-input mt-0" required />
+                  <div>
+                    <strong class="text-dark d-block">Yes</strong>
+                    <small class="text-secondary">Willing to voluntarily support the concerned department</small>
+                  </div>
+                </label>
+                <label class="willingness-option flex-grow-1 p-3 border rounded-3 d-flex align-items-center gap-3 cursor-pointer">
+                  <input type="radio" name="willingnessToSupport" value="No" class="form-check-input mt-0" required />
+                  <div>
+                    <strong class="text-dark d-block">No</strong>
+                    <small class="text-secondary">Not able to voluntarily support at this time</small>
+                  </div>
+                </label>
+              </div>
+              <div id="willingnessError" class="text-danger small mt-2 d-none fw-medium">
+                ⚠️ Selection required: Please select either &ldquo;Yes&rdquo; or &ldquo;No&rdquo; before submitting the final assessment.
+              </div>
+            </div>
+
+            <div class="final-submit-wrap mt-4 d-flex justify-content-end">
+              <button
+                type="button"
+                id="submitAssessment"
+                class="btn btn-success btn-lg px-4 fw-semibold"
+              >
+                Submit Final Assessment
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -478,6 +511,6 @@
       </div>
     </dialog>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-    <script type="module" src="js/dashboard.js?v=20261119c"></script>
+    <script type="module" src="js/dashboard.js?v=20261120a"></script>
   </body>
 </html>

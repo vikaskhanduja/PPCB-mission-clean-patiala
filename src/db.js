@@ -45,18 +45,19 @@ export const Road = mongoose.model('Road', new mongoose.Schema({
 }, opts));
 
 export const Assessment = mongoose.model('Assessment', new mongoose.Schema({
-  id:            { type: Number, unique: true },
-  institutionId: Number,
-  roadId:        Number,
-  userId:        Number,
-  assessorName:  String,
-  designation:   String,
-  contact:       String,
-  remarks:       String,
-  status:        String,
-  createdAt:     String,
-  updatedAt:     String,
-  submittedAt:   String,
+  id:                   { type: Number, unique: true },
+  institutionId:        Number,
+  roadId:               Number,
+  userId:               Number,
+  assessorName:         String,
+  designation:          String,
+  contact:              String,
+  remarks:              String,
+  willingnessToSupport: String, // 'Yes' | 'No'
+  status:               String,
+  createdAt:            String,
+  updatedAt:            String,
+  submittedAt:          String,
 }, opts));
 
 export const Issue = mongoose.model('Issue', new mongoose.Schema({

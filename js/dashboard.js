@@ -463,7 +463,13 @@ async function loadAssessments() {
           </td>
           <td data-label="Assigned Road"><strong>${escapeHtml(item.road?.name || "—")}</strong></td>
           <td data-label="Road Stretch">${escapeHtml(item.road?.stretch || "—")}</td>
-          <td data-label="Status"><span class="badge ${item.status === "Submitted" ? "text-bg-success" : "text-bg-warning"}">${escapeHtml(item.status || "—")}</span></td>
+          <td data-label="Status">
+            <span class="badge ${item.status === "Submitted" ? "text-bg-success" : "text-bg-warning"}">${escapeHtml(item.status || "—")}</span>
+            ${item.willingnessToSupport ? `
+              <span class="badge ${item.willingnessToSupport === "Yes" ? "badge-willingness-yes" : "badge-willingness-no"} d-block mt-1" title="Willingness to support concerned department">
+                🤝 Support: ${escapeHtml(item.willingnessToSupport)}
+              </span>` : ""}
+          </td>
           <td data-label="Issues / Interventions">${issueDetails}</td>
           <td data-label="Created">${escapeHtml(formatDate(item.createdAt))}</td>
           <td data-label="Submitted">${escapeHtml(formatDate(item.submittedAt))}</td>
@@ -554,9 +560,23 @@ async function init() {
 async function institution() {
   let savedIssuesCount = 0;
 
+  document.querySelectorAll('input[name="willingnessToSupport"]').forEach((radio) => {
+    radio.addEventListener("change", () => {
+      const err = document.getElementById("willingnessError");
+      if (err) err.classList.add("d-none");
+      const sec = document.getElementById("willingnessSection");
+      if (sec) sec.classList.remove("border-danger", "bg-danger-subtle");
+    });
+  });
+
   startBtn.onclick = async () => {
     assessment.classList.remove("d-none");
     issueEditor.classList.add("d-none");
+    document.querySelectorAll('input[name="willingnessToSupport"]').forEach((r) => (r.checked = false));
+    const sec = document.getElementById("willingnessSection");
+    if (sec) sec.classList.remove("border-danger", "bg-danger-subtle");
+    const err = document.getElementById("willingnessError");
+    if (err) err.classList.add("d-none");
     assessment.scrollIntoView({ behavior: "smooth", block: "start" });
     try {
       if (!categoriesLoaded) {
@@ -753,11 +773,27 @@ async function institution() {
       return;
     }
 
+    // Validate mandatory Willingness to Support selection
+    const willingnessRadio = document.querySelector('input[name="willingnessToSupport"]:checked');
+    const willingnessError = document.getElementById("willingnessError");
+    const willingnessSection = document.getElementById("willingnessSection");
+
+    if (!willingnessRadio) {
+      if (willingnessError) willingnessError.classList.remove("d-none");
+      if (willingnessSection) {
+        willingnessSection.classList.add("border-danger", "bg-danger-subtle");
+        willingnessSection.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      alert("Please indicate your 'Willingness to Support the Concerned Department' (Yes or No) before submitting the final assessment.");
+      return;
+    }
+
     submitAssessment.disabled = true;
     submitAssessment.textContent = "Submitting Final Assessment...";
     try {
       await api(`/api/assessments/${assessmentId}/submit`, {
         method: "PATCH",
+        body: JSON.stringify({ willingnessToSupport: willingnessRadio.value }),
       });
     } catch (e) {
       submitAssessment.disabled = false;
@@ -806,6 +842,11 @@ assessmentSuccessModal.addEventListener("close", async () => {
   category.dispatchEvent(new Event("change"));
   issueEditor.classList.add("d-none");
   issueList.replaceChildren();
+  document.querySelectorAll('input[name="willingnessToSupport"]').forEach((r) => (r.checked = false));
+  const willingnessSection = document.getElementById("willingnessSection");
+  if (willingnessSection) willingnessSection.classList.remove("border-danger", "bg-danger-subtle");
+  const willingnessError = document.getElementById("willingnessError");
+  if (willingnessError) willingnessError.classList.add("d-none");
   assessmentId = undefined;
   startBtn.disabled = false;
   addIssueBtn.disabled = true;
@@ -856,33 +897,35 @@ async function buildIssuesWorkbook(issues) {
     { header: "Priority",                   key: "priority",           width: 11 },
     { header: "Agency",                     key: "responsibleAgency",  width: 22 },
     { header: "Status",                     key: "status",             width: 20 },
-    { header: "Target Date",                key: "targetDate",         width: 14 },
-    { header: "Admin Remarks",              key: "adminRemarks",       width: 36 },
-    { header: "Reported On",                key: "createdAt",          width: 20 },
+    { header: "Target Date",                key: "targetDate",            width: 14 },
+    { header: "Admin Remarks",              key: "adminRemarks",          width: 36 },
+    { header: "Willingness to Support Dept",key: "willingnessToSupport",  width: 26 },
+    { header: "Reported On",                key: "createdAt",             width: 20 },
   ];
 
   [...issues]
     .sort((a, b) => (a.issueCode || "").localeCompare(b.issueCode || ""))
     .forEach((x) => {
       const row = sheet.addRow({
-        issueCode:          x.issueCode || "",
-        institution:        x.institution?.name || "",
-        road:               x.road?.name || "",
-        stretch:            x.road?.stretch || "",
-        category:           parentCategory(x.category) || "",
-        subcategory:        x.subcategory || "",
-        subcategoryDetails: x.subcategoryDetails || "",
-        description:        x.description || "",
-        recommendation:     x.recommendation || "",
-        attachmentUrl:      x.attachmentUrl || "",
-        latitude:           x.latitude || "",
-        longitude:          x.longitude || "",
-        priority:           x.priority || "",
-        responsibleAgency:  x.responsibleAgency || "",
-        status:             x.status || "",
-        targetDate:         x.targetDate || "",
-        adminRemarks:       x.adminRemarks || "",
-        createdAt:          x.createdAt ? new Date(x.createdAt).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }) : "",
+        issueCode:             x.issueCode || "",
+        institution:           x.institution?.name || "",
+        road:                  x.road?.name || "",
+        stretch:               x.road?.stretch || "",
+        category:              parentCategory(x.category) || "",
+        subcategory:           x.subcategory || "",
+        subcategoryDetails:    x.subcategoryDetails || "",
+        description:           x.description || "",
+        recommendation:        x.recommendation || "",
+        attachmentUrl:         x.attachmentUrl || "",
+        latitude:              x.latitude || "",
+        longitude:             x.longitude || "",
+        priority:              x.priority || "",
+        responsibleAgency:     x.responsibleAgency || "",
+        status:                x.status || "",
+        targetDate:            x.targetDate || "",
+        adminRemarks:          x.adminRemarks || "",
+        willingnessToSupport:  x.assessment?.willingnessToSupport || "",
+        createdAt:             x.createdAt ? new Date(x.createdAt).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }) : "",
       });
       if (x.attachmentUrl) {
         const cell = row.getCell("attachmentUrl");
@@ -946,7 +989,15 @@ async function officer() {
             </select>
             ${i.legacyCategory ? `<small class="d-block text-secondary mt-1">Previously: ${escapeHtml(i.legacyCategory)}</small>` : ""}
           </td>
-          <td data-label="Road"><strong>${escapeHtml(i.road?.name || "")}</strong></td>
+          <td data-label="Road">
+            <strong>${escapeHtml(i.road?.name || "")}</strong>
+            ${i.assessment?.willingnessToSupport ? `
+              <div class="mt-1">
+                <span class="badge ${i.assessment.willingnessToSupport === "Yes" ? "badge-willingness-yes" : "badge-willingness-no"}" title="Willingness to support concerned department">
+                  🤝 Support: ${escapeHtml(i.assessment.willingnessToSupport)}
+                </span>
+              </div>` : ""}
+          </td>
           <td data-label="Agency"><input class="form-control form-control-sm" data-key="responsibleAgency" placeholder="Assign agency" value="${escapeHtml(i.responsibleAgency || "")}"></td>
           <td data-label="Status"><select class="form-select form-select-sm" data-key="status">${statusOptions}</select></td>
           <td data-label="Update"><button class="btn btn-success btn-sm save w-100" data-id="${i.id}">Save</button></td>
