@@ -211,14 +211,35 @@ router.post('/issues/:id/photos', allow('institution', 'officer', 'department'),
 });
 
 // ─── Submit assessment ────────────────────────────────────────────────────────
+const supportEligibleCategories = new Set([
+  'Plantation',
+  'Opportunity for beautification',
+  'Pruning',
+  'Horticulture waste',
+  'Garbage Vulnerable Points on Road',
+  'Garbage Vulnerable Points at Vacant Plot',
+  'Sale/purchase of single-use plastic',
+  'Traffic congestion',
+  'Parking-related congestion',
+  'Awareness required for residents',
+  'Awareness required for RWA',
+  'Awareness required for shopkeepers/vendors',
+]);
+
 router.patch('/assessments/:id/submit', allow('institution'), async (req, res) => {
   const a = await Assessment.findOne({ id: Number(req.params.id), institutionId: req.user.institutionId }).lean();
   if (!a) return res.sendStatus(404);
-  if (!await Issue.exists({ assessmentId: a.id }))
+
+  const issues = await Issue.find({ assessmentId: a.id }).lean();
+  if (!issues.length)
     return res.status(400).json({ message: 'Add at least one issue' });
 
-  const willingness = req.body?.willingnessToSupport || a.willingnessToSupport;
-  if (!willingness || !['Yes', 'No'].includes(willingness)) {
+  const requiresWillingness = issues.some(
+    i => supportEligibleCategories.has(i.subcategory) || supportEligibleCategories.has(i.category)
+  );
+
+  const willingness = req.body?.willingnessToSupport || a.willingnessToSupport || null;
+  if (requiresWillingness && (!willingness || !['Yes', 'No'].includes(willingness))) {
     return res.status(400).json({ message: 'Please select whether you are willing to support the concerned department (Yes or No)' });
   }
 

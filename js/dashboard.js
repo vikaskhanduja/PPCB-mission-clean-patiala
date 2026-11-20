@@ -559,6 +559,48 @@ async function init() {
 }
 async function institution() {
   let savedIssuesCount = 0;
+  let savedIssueCategories = [];
+
+  const SUPPORT_ELIGIBLE_CATEGORIES = new Set([
+    "Plantation",
+    "Opportunity for beautification",
+    "Pruning",
+    "Horticulture waste",
+    "Garbage Vulnerable Points on Road",
+    "Garbage Vulnerable Points at Vacant Plot",
+    "Sale/purchase of single-use plastic",
+    "Traffic congestion",
+    "Parking-related congestion",
+    "Awareness required for residents",
+    "Awareness required for RWA",
+    "Awareness required for shopkeepers/vendors",
+  ]);
+
+  function updateWillingnessVisibility() {
+    const selectedCat = category.value;
+    const isCurrentEligible = SUPPORT_ELIGIBLE_CATEGORIES.has(selectedCat);
+    const hasSavedEligibleIssue = savedIssueCategories.some((cat) =>
+      SUPPORT_ELIGIBLE_CATEGORIES.has(cat),
+    );
+
+    const shouldShow = isCurrentEligible || hasSavedEligibleIssue;
+    const willingnessSection = document.getElementById("willingnessSection");
+    const willingnessError = document.getElementById("willingnessError");
+
+    if (willingnessSection) {
+      if (shouldShow) {
+        willingnessSection.classList.remove("d-none");
+      } else {
+        willingnessSection.classList.add("d-none");
+        willingnessSection.classList.remove("border-danger", "bg-danger-subtle");
+        if (willingnessError) willingnessError.classList.add("d-none");
+        document
+          .querySelectorAll('input[name="willingnessToSupport"]')
+          .forEach((r) => (r.checked = false));
+      }
+    }
+    return shouldShow;
+  }
 
   document.querySelectorAll('input[name="willingnessToSupport"]').forEach((radio) => {
     radio.addEventListener("change", () => {
@@ -570,13 +612,10 @@ async function institution() {
   });
 
   startBtn.onclick = async () => {
+    savedIssueCategories = [];
     assessment.classList.remove("d-none");
     issueEditor.classList.add("d-none");
-    document.querySelectorAll('input[name="willingnessToSupport"]').forEach((r) => (r.checked = false));
-    const sec = document.getElementById("willingnessSection");
-    if (sec) sec.classList.remove("border-danger", "bg-danger-subtle");
-    const err = document.getElementById("willingnessError");
-    if (err) err.classList.add("d-none");
+    updateWillingnessVisibility();
     assessment.scrollIntoView({ behavior: "smooth", block: "start" });
     try {
       if (!categoriesLoaded) {
@@ -624,6 +663,8 @@ async function institution() {
       });
       assessmentId = a.id;
       savedIssuesCount = 0;
+      savedIssueCategories = [];
+      updateWillingnessVisibility();
       saveDraftButton.textContent = "Draft Saved";
       saveDraftButton.disabled = true;
       issueEditor.classList.remove("d-none");
@@ -656,6 +697,7 @@ async function institution() {
     subcategoryDetailsWrap.classList.toggle("d-none", !isOther);
     subcategoryDetails.required = isOther;
     if (!isOther) subcategoryDetails.value = "";
+    updateWillingnessVisibility();
   });
 
   const uploadFile = async (url, field, file) => {
@@ -714,6 +756,7 @@ async function institution() {
       "beforeend",
       `<div class="issue-pill"><b>${escapeHtml(i.issueCode)}</b> • ${escapeHtml(i.subcategory || i.category)}<br><small>${escapeHtml(i.recommendation)}</small></div>`,
     );
+    savedIssueCategories.push(i.subcategory || i.category || category.value);
     issueForm.reset();
     category.dispatchEvent(new Event("change"));
     savedIssuesCount++;
@@ -773,12 +816,13 @@ async function institution() {
       return;
     }
 
-    // Validate mandatory Willingness to Support selection
+    // Validate mandatory Willingness to Support selection only for eligible categories
+    const isWillingnessRequired = updateWillingnessVisibility();
     const willingnessRadio = document.querySelector('input[name="willingnessToSupport"]:checked');
     const willingnessError = document.getElementById("willingnessError");
     const willingnessSection = document.getElementById("willingnessSection");
 
-    if (!willingnessRadio) {
+    if (isWillingnessRequired && !willingnessRadio) {
       if (willingnessError) willingnessError.classList.remove("d-none");
       if (willingnessSection) {
         willingnessSection.classList.add("border-danger", "bg-danger-subtle");
@@ -793,7 +837,7 @@ async function institution() {
     try {
       await api(`/api/assessments/${assessmentId}/submit`, {
         method: "PATCH",
-        body: JSON.stringify({ willingnessToSupport: willingnessRadio.value }),
+        body: JSON.stringify({ willingnessToSupport: willingnessRadio ? willingnessRadio.value : null }),
       });
     } catch (e) {
       submitAssessment.disabled = false;
@@ -842,11 +886,8 @@ assessmentSuccessModal.addEventListener("close", async () => {
   category.dispatchEvent(new Event("change"));
   issueEditor.classList.add("d-none");
   issueList.replaceChildren();
-  document.querySelectorAll('input[name="willingnessToSupport"]').forEach((r) => (r.checked = false));
-  const willingnessSection = document.getElementById("willingnessSection");
-  if (willingnessSection) willingnessSection.classList.remove("border-danger", "bg-danger-subtle");
-  const willingnessError = document.getElementById("willingnessError");
-  if (willingnessError) willingnessError.classList.add("d-none");
+  savedIssueCategories = [];
+  updateWillingnessVisibility();
   assessmentId = undefined;
   startBtn.disabled = false;
   addIssueBtn.disabled = true;
